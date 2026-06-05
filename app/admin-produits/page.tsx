@@ -23,8 +23,8 @@ export default function AdminProductsPage() {
 
     if (error) {
       console.error(error);
-    } else if (data) {
-      setProducts(data as Product[]);
+    } else {
+      setProducts(data || []);
     }
 
     setLoading(false);
@@ -46,14 +46,21 @@ export default function AdminProductsPage() {
       .eq("id", product.id);
 
     if (error) {
-      alert("Erreur lors de la mise à jour : " + error.message);
-    } else {
-      alert("Produit mis à jour !");
-      fetchProducts(); // rafraîchir la liste
+      alert("Erreur : " + error.message);
+      return;
     }
+
+    alert("Produit mis à jour !");
+    fetchProducts();
   };
 
-  if (loading) return <p className="text-white p-10">Chargement...</p>;
+  if (loading) {
+    return (
+      <main className="bg-black min-h-screen text-white p-10">
+        Chargement...
+      </main>
+    );
+  }
 
   return (
     <main className="bg-black min-h-screen text-white p-10">
@@ -61,82 +68,118 @@ export default function AdminProductsPage() {
         Administration Produits
       </h1>
 
-      <div className="space-y-10">
+      <div className="space-y-8">
         {products.map((product) => (
           <div
             key={product.id}
-            className="bg-zinc-950 border border-zinc-800 p-6 rounded-2xl space-y-4"
+            className="bg-zinc-950 border border-zinc-800 rounded-2xl p-6"
           >
-            <label className="block font-bold">Nom</label>
-            <input
-              type="text"
-              value={product.name}
-              onChange={(e) =>
-                setProducts((prev) =>
-                  prev.map((p) =>
-                    p.id === product.id
-                      ? { ...p, name: e.target.value }
-                      : p
-                  )
-                )
-              }
-              className="w-full p-3 rounded-xl bg-zinc-900 border border-zinc-700"
-            />
+            <div className="space-y-4">
+              <div>
+                <label className="block mb-2 font-bold">
+                  Nom
+                </label>
 
-            <label className="block font-bold">Prix (€)</label>
-            <input
-              type="number"
-              value={product.price}
-              onChange={(e) =>
-                setProducts((prev) =>
-                  prev.map((p) =>
-                    p.id === product.id
-                      ? { ...p, price: parseFloat(e.target.value) }
-                      : p
-                  )
-                )
-              }
-              className="w-full p-3 rounded-xl bg-zinc-900 border border-zinc-700"
-            />
+                <input
+                  type="text"
+                  value={product.name}
+                  onChange={(e) =>
+                    setProducts((prev) =>
+                      prev.map((p) =>
+                        p.id === product.id
+                          ? {
+                              ...p,
+                              name: e.target.value,
+                            }
+                          : p
+                      )
+                    )
+                  }
+                  className="w-full p-3 rounded-xl bg-zinc-900 border border-zinc-700"
+                />
+              </div>
 
-            <label className="block font-bold">Description</label>
-            <textarea
-              value={product.description}
-              onChange={(e) =>
-                setProducts((prev) =>
-                  prev.map((p) =>
-                    p.id === product.id
-                      ? { ...p, description: e.target.value }
-                      : p
-                  )
-                )
-              }
-              className="w-full p-3 rounded-xl bg-zinc-900 border border-zinc-700 resize-none"
-              rows={3}
-            />
+              <div>
+                <label className="block mb-2 font-bold">
+                  Prix (€)
+                </label>
 
-            <label className="block font-bold">Saveurs (séparées par des virgules)</label>
-            <input
-              type="text"
-              value={product.flavors}
-              onChange={(e) =>
-                setProducts((prev) =>
-                  prev.map((p) =>
-                    p.id === product.id
-                      ? { ...p, flavors: e.target.value }
-                      : p
-                  )
-                )
-              }
-              className="w-full p-3 rounded-xl bg-zinc-900 border border-zinc-700"
-            />
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={product.price}
+                  onChange={(e) =>
+                    setProducts((prev) =>
+                      prev.map((p) =>
+                        p.id === product.id
+                          ? {
+                              ...p,
+                              price: Number(e.target.value),
+                            }
+                          : p
+                      )
+                    )
+                  }
+                  className="w-full p-3 rounded-xl bg-zinc-900 border border-zinc-700"
+                />
+              </div>
 
-            <button
-              onClick={() => handleUpdate(product)}
-              className="bg-gradient-to-r from-purple-600 to-fuchsia-500 px-6 py-3 rounded-xl font-bold mt-4"
-            >
-              Mettre à jour
-            </button>
+              <div>
+                <label className="block mb-2 font-bold">
+                  Description
+                </label>
+
+                <textarea
+                  value={product.description}
+                  onChange={(e) =>
+                    setProducts((prev) =>
+                      prev.map((p) =>
+                        p.id === product.id
+                          ? {
+                              ...p,
+                              description: e.target.value,
+                            }
+                          : p
+                      )
+                    )
+                  }
+                  rows={4}
+                  className="w-full p-3 rounded-xl bg-zinc-900 border border-zinc-700 resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-2 font-bold">
+                  Saveurs (séparées par des virgules)
+                </label>
+
+                <input
+                  type="text"
+                  value={product.flavors}
+                  onChange={(e) =>
+                    setProducts((prev) =>
+                      prev.map((p) =>
+                        p.id === product.id
+                          ? {
+                              ...p,
+                              flavors: e.target.value,
+                            }
+                          : p
+                      )
+                    )
+                  }
+                  className="w-full p-3 rounded-xl bg-zinc-900 border border-zinc-700"
+                />
+              </div>
+
+              <button
+                onClick={() => handleUpdate(product)}
+                className="bg-gradient-to-r from-purple-600 to-fuchsia-500 px-6 py-3 rounded-xl font-bold"
+              >
+                Mettre à jour
+              </button>
+            </div>
           </div>
         ))}
       </div>
