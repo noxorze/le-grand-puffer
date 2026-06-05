@@ -1,57 +1,53 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import TopBar from "@/components/TopBar";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useCart } from "@/context/CartContext";
-
-const products = {
-  jnr16k: {
-    id: "jnr16k",
-    name: "JNR 16K",
-    price: 14.99,
-    image: "/images/jnr16k.png",
-    description:
-      "La JNR 16K offre jusqu'à 16 000 bouffées avec une restitution des saveurs exceptionnelle et une excellente autonomie.",
-    flavors: [
-      "Blue Razz Ice",
-      "Strawberry Kiwi",
-      "Watermelon Ice",
-      "Cherry Cola",
-    ],
-  },
-
-  jnr40k: {
-    id: "jnr40k",
-    name: "JNR 40K Léopard",
-    price: 19.99,
-    image: "/images/jnr40k.png",
-    description:
-      "La JNR 40K Léopard offre jusqu'à 40 000 bouffées, une autonomie exceptionnelle, une recharge USB-C et une vapeur intense.",
-    flavors: [
-      "Blue Razz Ice",
-      "Strawberry Kiwi",
-      "Watermelon Ice",
-      "Cherry Cola",
-    ],
-  },
-};
+import { supabase } from "@/lib/supabase";
 
 export default function ProductPage() {
-  const { id } = useParams();
-
-  const product =
-    products[id as keyof typeof products];
-
+  const params = useParams();
   const { addToCart } = useCart();
 
-  const [flavor, setFlavor] =
-    useState(
-      product?.flavors?.[0] || ""
+  const [product, setProduct] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [flavor, setFlavor] = useState("");
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      const { data } = await supabase
+        .from("products")
+        .select("*")
+        .eq("id", params.id)
+        .single();
+
+      if (data) {
+        setProduct(data);
+
+        const flavorsArray = data.flavors
+          ? data.flavors.split(",").map((f: string) => f.trim())
+          : [];
+
+        setFlavor(flavorsArray[0] || "");
+      }
+
+      setLoading(false);
+    };
+
+    fetchProduct();
+  }, [params.id]);
+
+  if (loading) {
+    return (
+      <main className="bg-black min-h-screen text-white flex items-center justify-center">
+        Chargement...
+      </main>
     );
+  }
 
   if (!product) {
     return (
@@ -60,6 +56,10 @@ export default function ProductPage() {
       </main>
     );
   }
+
+  const flavors = product.flavors
+    ? product.flavors.split(",").map((f: string) => f.trim())
+    : [];
 
   return (
     <main className="bg-black min-h-screen text-white">
@@ -104,11 +104,7 @@ export default function ProductPage() {
 
               <select
                 value={flavor}
-                onChange={(e) =>
-                  setFlavor(
-                    e.target.value
-                  )
-                }
+                onChange={(e) => setFlavor(e.target.value)}
                 className="
                   w-full
                   bg-zinc-900
@@ -118,16 +114,11 @@ export default function ProductPage() {
                   p-4
                 "
               >
-                {product.flavors.map(
-                  (item) => (
-                    <option
-                      key={item}
-                      value={item}
-                    >
-                      {item}
-                    </option>
-                  )
-                )}
+                {flavors.map((item: string) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
               </select>
 
             </div>
@@ -135,7 +126,9 @@ export default function ProductPage() {
             <div className="mt-10 flex items-center justify-between">
 
               <span className="text-5xl font-black text-purple-400">
-                {product.price.toFixed(2)} €
+                {Number(product.price)
+                  .toFixed(2)
+                  .replace(".", ",")} €
               </span>
 
               <span className="text-green-400">
@@ -150,7 +143,7 @@ export default function ProductPage() {
                   id: product.id,
                   name: product.name,
                   flavor,
-                  price: product.price,
+                  price: Number(product.price),
                   image: product.image,
                 })
               }
