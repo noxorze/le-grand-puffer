@@ -51,33 +51,32 @@ export async function POST(req: Request) {
     }
 
     const session =
-      await stripe.checkout.sessions.create(
-        {
-          payment_method_types: [
-            "card",
+      await stripe.checkout.sessions.create({
+        payment_method_types: [
+          "card",
+        ],
+
+        shipping_address_collection: {
+          allowed_countries: [
+            "FR",
+            "BE",
+            "LU",
           ],
+        },
 
-          shipping_address_collection: {
-  allowed_countries: [
-    "FR",
-    "BE",
-  ],
-},
+        billing_address_collection:
+          "required",
 
-          billing_address_collection:
-            "required",
+        line_items,
 
-          line_items,
+        mode: "payment",
 
-          mode: "payment",
+        success_url:
+          `${process.env.NEXT_PUBLIC_SITE_URL}/succes`,
 
-          success_url:
-            "http://localhost:3000/success",
-
-          cancel_url:
-            "http://localhost:3000/panier",
-        }
-      );
+        cancel_url:
+          `${process.env.NEXT_PUBLIC_SITE_URL}/panier`,
+      });
 
     return NextResponse.json({
       url: session.url,

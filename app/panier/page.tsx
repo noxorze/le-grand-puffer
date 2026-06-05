@@ -25,52 +25,6 @@ export default function PanierPage() {
 
   const total = subtotal + shipping;
 
-  const handleCheckout = async () => {
-    try {
-      const response = await fetch(
-        "/api/checkout",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-          body: JSON.stringify({
-            cart,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          "Erreur lors de la création de la session Stripe"
-        );
-      }
-
-      const data =
-        await response.json();
-
-      if (data.url) {
-        window.location.href =
-          data.url;
-        return;
-      }
-
-      throw new Error(
-        "URL Stripe introuvable"
-      );
-    } catch (error) {
-      console.error(
-        "Erreur Stripe :",
-        error
-      );
-
-      alert(
-        "Impossible de lancer le paiement."
-      );
-    }
-  };
-
   return (
     <main className="bg-black min-h-screen text-white">
       <TopBar />
@@ -246,14 +200,17 @@ export default function PanierPage() {
                 </div>
 
                 <button
-                  onClick={handleCheckout}
+                  onClick={() => {
+                    window.location.href =
+                      "/livraison";
+                  }}
                   className="w-full mt-8 bg-gradient-to-r from-purple-600 to-fuchsia-500 py-4 rounded-2xl font-bold text-lg hover:opacity-90 transition"
                 >
                   Commander
                 </button>
 
                 <p className="text-zinc-500 text-sm mt-4 text-center">
-                  Paiement sécurisé Stripe
+                  Livraison puis paiement sécurisé Stripe
                 </p>
 
               </div>
