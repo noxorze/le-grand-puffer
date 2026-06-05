@@ -7,7 +7,10 @@ const stripe = new Stripe(
 
 export async function POST(req: Request) {
   try {
-    const { cart } = await req.json();
+    const {
+      cart,
+      shipping,
+    } = await req.json();
 
     const line_items = cart.map(
       (item: any) => ({
@@ -51,32 +54,84 @@ export async function POST(req: Request) {
     }
 
     const session =
-      await stripe.checkout.sessions.create({
-        payment_method_types: [
-          "card",
-        ],
-
-        shipping_address_collection: {
-          allowed_countries: [
-            "FR",
-            "BE",
-            "LU",
+      await stripe.checkout.sessions.create(
+        {
+          payment_method_types: [
+            "card",
           ],
-        },
 
-        billing_address_collection:
-          "required",
+          billing_address_collection:
+            "auto",
 
-        line_items,
+          line_items,
 
-        mode: "payment",
+          mode: "payment",
 
-        success_url:
-          `${process.env.NEXT_PUBLIC_SITE_URL}/succes`,
+          metadata: {
+            country:
+              shipping?.country ||
+              "",
 
-        cancel_url:
-          `${process.env.NEXT_PUBLIC_SITE_URL}/panier`,
-      });
+            deliveryType:
+              shipping?.deliveryType ||
+              "",
+
+            firstName:
+              shipping?.firstName ||
+              "",
+
+            lastName:
+              shipping?.lastName ||
+              "",
+
+            email:
+              shipping?.email ||
+              "",
+
+            phone:
+              shipping?.phone ||
+              "",
+
+            address:
+              shipping?.address ||
+              "",
+
+            city:
+              shipping?.city ||
+              "",
+
+            zip:
+              shipping?.zip ||
+              "",
+
+            relayName:
+              shipping?.relayName ||
+              "",
+
+            relayAddress:
+              shipping?.relayAddress ||
+              "",
+
+            relayCity:
+              shipping?.relayCity ||
+              "",
+
+            relayZip:
+              shipping?.relayZip ||
+              "",
+
+            instructions:
+              shipping?.instructions ||
+              "",
+          },
+
+          success_url:
+            `${process.env.NEXT_PUBLIC_SITE_URL}/succes`,
+
+          cancel_url:
+            `${process.env.NEXT_PUBLIC_SITE_URL}/panier`,
+        }
+      );
 
     return NextResponse.json({
       url: session.url,
