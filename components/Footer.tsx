@@ -1,11 +1,10 @@
+import Link from "next/link";
+
 export default function Footer() {
   return (
     <footer className="bg-black border-t border-zinc-800 text-white">
-
       <div className="max-w-7xl mx-auto px-6 lg:px-10 py-16">
-
         <div className="grid md:grid-cols-4 gap-10">
-
           <div>
             <h3 className="text-2xl font-black">
               LE GRAND{" "}
@@ -25,9 +24,32 @@ export default function Footer() {
             </h4>
 
             <ul className="space-y-2 text-zinc-400">
-              <li>Boutique</li>
-              <li>Nouveautés</li>
-              <li>Meilleures ventes</li>
+              <li>
+                <Link
+                  href="/boutique"
+                  className="hover:text-purple-400 transition"
+                >
+                  Boutique
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  href="/boutique"
+                  className="hover:text-purple-400 transition"
+                >
+                  Nouveautés
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  href="/boutique"
+                  className="hover:text-purple-400 transition"
+                >
+                  Meilleures ventes
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -37,9 +59,32 @@ export default function Footer() {
             </h4>
 
             <ul className="space-y-2 text-zinc-400">
-              <li>Livraison</li>
-              <li>FAQ</li>
-              <li>Contact</li>
+              <li>
+                <Link
+                  href="/livraison"
+                  className="hover:text-purple-400 transition"
+                >
+                  Livraison
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  href="/faq"
+                  className="hover:text-purple-400 transition"
+                >
+                  FAQ
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  href="/contact"
+                  className="hover:text-purple-400 transition"
+                >
+                  Contact
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -49,20 +94,40 @@ export default function Footer() {
             </h4>
 
             <ul className="space-y-2 text-zinc-400">
-              <li>Mentions légales</li>
-              <li>CGV</li>
-              <li>Confidentialité</li>
+              <li>
+                <Link
+                  href="/mentions-legales"
+                  className="hover:text-purple-400 transition"
+                >
+                  Mentions légales
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  href="/cgv"
+                  className="hover:text-purple-400 transition"
+                >
+                  CGV
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  href="/confidentialite"
+                  className="hover:text-purple-400 transition"
+                >
+                  Confidentialité
+                </Link>
+              </li>
             </ul>
           </div>
-
         </div>
 
         <div className="border-t border-zinc-800 mt-12 pt-8 text-center text-zinc-500 text-sm">
           © 2026 Le Grand Puffer. Tous droits réservés.
         </div>
-
       </div>
-
     </footer>
   );
 }
