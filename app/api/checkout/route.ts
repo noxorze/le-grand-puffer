@@ -8,9 +8,14 @@ const stripe = new Stripe(
 export async function POST(req: Request) {
   try {
     const {
-      cart,
-      shipping,
-    } = await req.json();
+  cart,
+  shipping,
+} = await req.json();
+
+console.log(
+  "SHIPPING DATA =",
+  JSON.stringify(shipping, null, 2)
+);
 
     const line_items = cart.map(
       (item: any) => ({
