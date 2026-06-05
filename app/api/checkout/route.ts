@@ -8,14 +8,18 @@ const stripe = new Stripe(
 export async function POST(req: Request) {
   try {
     const {
-  cart,
-  shipping,
-} = await req.json();
+      cart,
+      shipping,
+    } = await req.json();
 
-console.log(
-  "SHIPPING DATA =",
-  JSON.stringify(shipping, null, 2)
-);
+    console.log(
+      "SHIPPING DATA =",
+      JSON.stringify(
+        shipping,
+        null,
+        2
+      )
+    );
 
     const line_items = cart.map(
       (item: any) => ({
@@ -38,7 +42,8 @@ console.log(
     const subtotal = cart.reduce(
       (total: number, item: any) =>
         total +
-        item.price * item.quantity,
+        item.price *
+          item.quantity,
       0
     );
 
@@ -58,6 +63,53 @@ console.log(
       } as any);
     }
 
+    const metadata = {
+      country:
+        shipping?.country || "",
+
+      deliveryType:
+        shipping?.deliveryType ||
+        "",
+
+      firstName:
+        shipping?.firstName || "",
+
+      lastName:
+        shipping?.lastName || "",
+
+      email:
+        shipping?.email || "",
+
+      phone:
+        shipping?.phone || "",
+
+      address:
+        shipping?.address || "",
+
+      city:
+        shipping?.city || "",
+
+      zip:
+        shipping?.zip || "",
+
+      relayName:
+        shipping?.relayName || "",
+
+      relayAddress:
+        shipping?.relayAddress ||
+        "",
+
+      relayCity:
+        shipping?.relayCity || "",
+
+      relayZip:
+        shipping?.relayZip || "",
+
+      instructions:
+        shipping?.instructions ||
+        "",
+    };
+
     const session =
       await stripe.checkout.sessions.create(
         {
@@ -72,62 +124,10 @@ console.log(
 
           mode: "payment",
 
-          metadata: {
-            country:
-              shipping?.country ||
-              "",
+          metadata,
 
-            deliveryType:
-              shipping?.deliveryType ||
-              "",
-
-            firstName:
-              shipping?.firstName ||
-              "",
-
-            lastName:
-              shipping?.lastName ||
-              "",
-
-            email:
-              shipping?.email ||
-              "",
-
-            phone:
-              shipping?.phone ||
-              "",
-
-            address:
-              shipping?.address ||
-              "",
-
-            city:
-              shipping?.city ||
-              "",
-
-            zip:
-              shipping?.zip ||
-              "",
-
-            relayName:
-              shipping?.relayName ||
-              "",
-
-            relayAddress:
-              shipping?.relayAddress ||
-              "",
-
-            relayCity:
-              shipping?.relayCity ||
-              "",
-
-            relayZip:
-              shipping?.relayZip ||
-              "",
-
-            instructions:
-              shipping?.instructions ||
-              "",
+          payment_intent_data: {
+            metadata,
           },
 
           success_url:
