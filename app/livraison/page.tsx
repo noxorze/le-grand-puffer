@@ -1,186 +1,275 @@
-import TopBar from "@/components/TopBar";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+"use client";
+
+import { useState } from "react";
 
 export default function LivraisonPage() {
+  const [country, setCountry] = useState("FR");
+  const [deliveryType, setDeliveryType] =
+    useState("relay");
+
+  const [phone, setPhone] = useState("");
+  const [relayName, setRelayName] =
+    useState("");
+  const [relayAddress, setRelayAddress] =
+    useState("");
+  const [relayCity, setRelayCity] =
+    useState("");
+  const [relayZip, setRelayZip] =
+    useState("");
+  const [instructions, setInstructions] =
+    useState("");
+
+  const handleContinue = async () => {
+    localStorage.setItem(
+      "shipping",
+      JSON.stringify({
+        country,
+        deliveryType,
+        phone,
+        relayName,
+        relayAddress,
+        relayCity,
+        relayZip,
+        instructions,
+      })
+    );
+
+    const cart = JSON.parse(
+      localStorage.getItem("cart") || "[]"
+    );
+
+    try {
+      const response = await fetch(
+        "/api/checkout",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            cart,
+          }),
+        }
+      );
+
+      const data =
+        await response.json();
+
+      if (data.url) {
+        window.location.href =
+          data.url;
+      }
+    } catch (error) {
+      console.error(error);
+
+      alert(
+        "Erreur lors de la redirection Stripe."
+      );
+    }
+  };
+
   return (
     <main className="bg-black min-h-screen text-white">
-      <TopBar />
-      <Navbar />
 
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-20">
+      <div className="max-w-5xl mx-auto px-6 py-16">
 
-        <span className="text-purple-400 font-semibold tracking-wider">
-          LIVRAISON
-        </span>
-
-        <h1 className="text-5xl md:text-6xl font-black mt-4">
-          Livraison & Expédition
+        <h1 className="text-5xl font-black mb-4">
+          Livraison
         </h1>
 
-        <p className="text-zinc-400 mt-6 text-lg max-w-3xl">
-          Nous préparons chaque commande avec soin afin de garantir
-          une expédition rapide et sécurisée partout en France,
-          Belgique et Luxembourg.
+        <p className="text-zinc-400 mb-10">
+          Renseignez vos informations avant
+          le paiement sécurisé Stripe.
         </p>
 
-        <div className="grid md:grid-cols-3 gap-8 mt-14">
+        <div className="space-y-8">
 
           <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-8">
-            <h2 className="text-2xl font-bold">
-              🇫🇷 France
+
+            <h2 className="text-2xl font-bold mb-6">
+              Pays
             </h2>
 
-            <p className="text-zinc-400 mt-4">
-              Livraison estimée entre 2 et 5 jours ouvrés.
-            </p>
+            <select
+              value={country}
+              onChange={(e) =>
+                setCountry(e.target.value)
+              }
+              className="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-700"
+            >
+              <option value="FR">
+                🇫🇷 France
+              </option>
 
-            <p className="text-purple-400 font-semibold mt-4">
-              4,90 €
-            </p>
+              <option value="BE">
+                🇧🇪 Belgique
+              </option>
+
+              <option value="LU">
+                🇱🇺 Luxembourg
+              </option>
+            </select>
+
           </div>
 
           <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-8">
-            <h2 className="text-2xl font-bold">
-              🇧🇪 Belgique
+
+            <h2 className="text-2xl font-bold mb-6">
+              Mode de livraison
             </h2>
 
-            <p className="text-zinc-400 mt-4">
-              Livraison estimée entre 3 et 6 jours ouvrés.
-            </p>
+            <div className="flex gap-4">
 
-            <p className="text-purple-400 font-semibold mt-4">
-              4,90 €
-            </p>
-          </div>
+              <button
+                onClick={() =>
+                  setDeliveryType(
+                    "relay"
+                  )
+                }
+                className={`flex-1 p-4 rounded-xl border ${
+                  deliveryType ===
+                  "relay"
+                    ? "border-purple-500 bg-purple-500/10"
+                    : "border-zinc-700"
+                }`}
+              >
+                Point relais
+              </button>
 
-          <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-8">
-            <h2 className="text-2xl font-bold">
-              🇱🇺 Luxembourg
-            </h2>
+              <button
+                onClick={() =>
+                  setDeliveryType(
+                    "home"
+                  )
+                }
+                className={`flex-1 p-4 rounded-xl border ${
+                  deliveryType ===
+                  "home"
+                    ? "border-purple-500 bg-purple-500/10"
+                    : "border-zinc-700"
+                }`}
+              >
+                À domicile
+              </button>
 
-            <p className="text-zinc-400 mt-4">
-              Livraison estimée entre 3 et 6 jours ouvrés.
-            </p>
-
-            <p className="text-purple-400 font-semibold mt-4">
-              4,90 €
-            </p>
-          </div>
-
-        </div>
-
-        <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-10 mt-12">
-
-          <h2 className="text-3xl font-black">
-            Livraison offerte
-          </h2>
-
-          <p className="text-zinc-400 mt-4 text-lg">
-            Pour toute commande supérieure à 50€,
-            les frais de livraison sont offerts.
-          </p>
-
-          <div className="mt-8 bg-purple-500/10 border border-purple-500/20 rounded-2xl p-6">
-            <p className="text-purple-300 font-semibold">
-              Livraison gratuite dès 50€ d'achat.
-            </p>
-          </div>
-
-        </div>
-
-        <div className="grid lg:grid-cols-2 gap-8 mt-12">
-
-          <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-10">
-
-            <h2 className="text-3xl font-black">
-              Paiement sécurisé
-            </h2>
-
-            <p className="text-zinc-400 mt-6">
-              Toutes les transactions sont protégées
-              grâce à Stripe et aux protocoles de sécurité
-              les plus récents.
-            </p>
-
-            <ul className="mt-6 space-y-3 text-zinc-300">
-              <li>✓ Paiement sécurisé SSL</li>
-              <li>✓ Carte bancaire</li>
-              <li>✓ Protection des données</li>
-            </ul>
-
-          </div>
-
-          <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-10">
-
-            <h2 className="text-3xl font-black">
-              Suivi de commande
-            </h2>
-
-            <p className="text-zinc-400 mt-6">
-              Dès l'expédition de votre commande,
-              vous recevez un email de confirmation
-              contenant toutes les informations utiles.
-            </p>
-
-            <ul className="mt-6 space-y-3 text-zinc-300">
-              <li>✓ Confirmation de commande</li>
-              <li>✓ Préparation rapide</li>
-              <li>✓ Notification d'expédition</li>
-            </ul>
-
-          </div>
-
-        </div>
-
-        <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-10 mt-12">
-
-          <h2 className="text-3xl font-black">
-            Questions fréquentes
-          </h2>
-
-          <div className="mt-8 space-y-8">
-
-            <div>
-              <h3 className="font-bold text-xl">
-                Quand ma commande est-elle expédiée ?
-              </h3>
-
-              <p className="text-zinc-400 mt-2">
-                Les commandes sont généralement préparées
-                sous 24 à 48 heures ouvrées.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="font-bold text-xl">
-                Puis-je modifier mon adresse ?
-              </h3>
-
-              <p className="text-zinc-400 mt-2">
-                Contactez-nous rapidement après votre achat
-                afin que nous puissions vérifier la faisabilité.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="font-bold text-xl">
-                Que faire si ma commande est retardée ?
-              </h3>
-
-              <p className="text-zinc-400 mt-2">
-                Notre équipe reste disponible via la page contact
-                pour toute question concernant votre commande.
-              </p>
             </div>
 
           </div>
 
+          <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-8">
+
+            <h2 className="text-2xl font-bold mb-6">
+              Téléphone
+            </h2>
+
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) =>
+                setPhone(
+                  e.target.value
+                )
+              }
+              placeholder="06 12 34 56 78"
+              className="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-700"
+            />
+
+          </div>
+
+          {deliveryType === "relay" && (
+            <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-8">
+
+              <h2 className="text-2xl font-bold mb-6">
+                Point relais
+              </h2>
+
+              <div className="space-y-4">
+
+                <input
+                  type="text"
+                  placeholder="Nom du relais"
+                  value={relayName}
+                  onChange={(e) =>
+                    setRelayName(
+                      e.target.value
+                    )
+                  }
+                  className="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-700"
+                />
+
+                <input
+                  type="text"
+                  placeholder="Adresse"
+                  value={relayAddress}
+                  onChange={(e) =>
+                    setRelayAddress(
+                      e.target.value
+                    )
+                  }
+                  className="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-700"
+                />
+
+                <input
+                  type="text"
+                  placeholder="Ville"
+                  value={relayCity}
+                  onChange={(e) =>
+                    setRelayCity(
+                      e.target.value
+                    )
+                  }
+                  className="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-700"
+                />
+
+                <input
+                  type="text"
+                  placeholder="Code postal"
+                  value={relayZip}
+                  onChange={(e) =>
+                    setRelayZip(
+                      e.target.value
+                    )
+                  }
+                  className="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-700"
+                />
+
+              </div>
+
+            </div>
+          )}
+
+          <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-8">
+
+            <h2 className="text-2xl font-bold mb-6">
+              Instructions de livraison
+            </h2>
+
+            <textarea
+              rows={5}
+              value={instructions}
+              onChange={(e) =>
+                setInstructions(
+                  e.target.value
+                )
+              }
+              placeholder="Informations complémentaires..."
+              className="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-700 resize-none"
+            />
+
+          </div>
+
+          <button
+            onClick={handleContinue}
+            className="w-full bg-gradient-to-r from-purple-600 to-fuchsia-500 py-5 rounded-2xl font-bold text-lg"
+          >
+            Continuer vers le paiement
+          </button>
+
         </div>
 
-      </section>
+      </div>
 
-      <Footer />
     </main>
   );
 }

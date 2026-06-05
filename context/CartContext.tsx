@@ -5,6 +5,7 @@ import {
   useContext,
   useState,
   ReactNode,
+  useEffect,
 } from "react";
 
 export type CartItem = {
@@ -54,6 +55,22 @@ export function CartProvider({
   const [cart, setCart] = useState<CartItem[]>(
     []
   );
+
+  useEffect(() => {
+    const savedCart =
+      localStorage.getItem("cart");
+
+    if (savedCart) {
+      setCart(JSON.parse(savedCart));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "cart",
+      JSON.stringify(cart)
+    );
+  }, [cart]);
 
   const addToCart = (
     product: Omit<CartItem, "quantity">
@@ -145,6 +162,7 @@ export function CartProvider({
 
   const clearCart = () => {
     setCart([]);
+    localStorage.removeItem("cart");
   };
 
   return (
