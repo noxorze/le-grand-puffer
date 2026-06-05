@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 type Product = {
@@ -12,8 +13,38 @@ type Product = {
 };
 
 export default function AdminProductsPage() {
+  const router = useRouter();
+
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        router.push("/connexion");
+        return;
+      }
+
+      const { data } = await supabase
+        .from("admins")
+        .select("email")
+        .eq("email", user.email)
+        .single();
+
+      if (!data) {
+        router.push("/");
+        return;
+      }
+
+      fetchProducts();
+    };
+
+    checkAdmin();
+  }, [router]);
 
   const fetchProducts = async () => {
     const { data, error } = await supabase
@@ -29,10 +60,6 @@ export default function AdminProductsPage() {
 
     setLoading(false);
   };
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
 
   const handleUpdate = async (product: Product) => {
     const { error } = await supabase
@@ -75,6 +102,7 @@ export default function AdminProductsPage() {
             className="bg-zinc-950 border border-zinc-800 rounded-2xl p-6"
           >
             <div className="space-y-4">
+
               <div>
                 <label className="block mb-2 font-bold">
                   Nom
@@ -179,6 +207,7 @@ export default function AdminProductsPage() {
               >
                 Mettre à jour
               </button>
+
             </div>
           </div>
         ))}
