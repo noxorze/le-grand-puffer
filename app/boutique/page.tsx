@@ -1,27 +1,31 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import TopBar from "@/components/TopBar";
 import Footer from "@/components/Footer";
-
-const products = [
-  {
-    id: "jnr16k",
-    name: "JNR 16K",
-    description: "Jusqu'à 16 000 bouffées.",
-    price: "14,90€",
-    image: "/images/jnr16k.png",
-  },
-  {
-    id: "jnr40k",
-    name: "JNR 40K Léopard",
-    description: "Jusqu'à 40 000 bouffées.",
-    price: "19,90€",
-    image: "/images/jnr40k.png",
-  },
-];
+import { supabase } from "@/lib/supabase";
 
 export default function BoutiquePage() {
+  const [products, setProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const { data } = await supabase
+        .from("products")
+        .select("*")
+        .order("id");
+
+      if (data) {
+        setProducts(data);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   return (
     <main className="bg-black min-h-screen text-white">
       <TopBar />
@@ -30,7 +34,6 @@ export default function BoutiquePage() {
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-16">
 
         <div className="mb-12">
-
           <h1 className="text-5xl md:text-6xl font-black">
             Boutique
           </h1>
@@ -38,7 +41,6 @@ export default function BoutiquePage() {
           <p className="text-zinc-400 mt-4">
             Retrouvez toutes nos puffs JNR.
           </p>
-
         </div>
 
         <div className="grid md:grid-cols-2 gap-8">
@@ -80,7 +82,7 @@ export default function BoutiquePage() {
               <div className="flex items-center justify-between mt-6">
 
                 <span className="text-3xl font-black text-purple-400">
-                  {product.price}
+                  {Number(product.price).toFixed(2).replace(".", ",")} €
                 </span>
 
                 <span className="text-green-400">
